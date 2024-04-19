@@ -1,5 +1,7 @@
 import Message from "../models/messagemodel.js";
 import Conversation from "../models/conversationmodel.js";
+import { getReceiverSocketId } from "../socket/socket.js";
+import {io} from "../socket/socket.js";
 
 export const sendMessage=async(req,res)=>{
     try{
@@ -25,17 +27,20 @@ export const sendMessage=async(req,res)=>{
             message,
         });
 
-        ////SOCKETIO functionality will go here for making the chat realtime
 
         if(newMessage){
             conversation.messages.push(newMessage._id)
-        } /////here we created the conversation but didn't save it so use save function....
-        // await conversation.save();///saving the conversation between two ids
-        // await newMessage.save();////save the messages
-        ///this method of saving seperately will cause more time complexity to store for example 2 sec for saving
-        ///to optimize this code for saving   use Promise\
-        //But using promise both saving will be done parallely causing faster response time saving the time
+        }
         await Promise.all([conversation.save(),newMessage.save()]);
+
+        ////SOCKETIO functionality will go here for making the chat realtime
+        const receiverSocketId=getReceiverSocketId(receiverId);
+        if(receiverSocketId){
+            //io.to(<socket_id>).emit() used to send events to specific client
+            io.to(receiverSocketId).emit("newMessage",newMessage);
+        }
+
+
         res.status(201).json(newMessage);
 
     }catch(error){
