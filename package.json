@@ -1,4 +1,5 @@
 {
+  "homepage": "https://khushalp2004.github.io/mern-chat-app",
   "name": "chatapp",
   "version": "1.0.0",
   "description": "",
@@ -6,6 +7,8 @@
   "scripts": {
     "server": "nodemon backend/server.js",
     "start": "node backend/server.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
   },
   "type": "module",
